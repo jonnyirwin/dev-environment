@@ -1,0 +1,62 @@
+---
+- hosts: all
+  gather_facts: yes
+  vars:
+    current_user: vagrant
+  tasks:
+    # Install apt packages
+    - name: Install dependencies
+      become: yes
+      apt:
+        name: [ 'stow', 'fortune', 'build-essential', 'zsh', 'python3-pip', 'tmux', 'neovim'] 
+        state: present
+        update_cache: yes
+
+    - name: Change shell to zsh
+      user:
+        name: '{{ current_user }}' 
+        shell: /bin/zsh
+      become: yes
+
+    # Install pip packages
+    - name: Get path to pip3
+      command: which pip3
+      register: pip_path
+      changed_when: false
+
+    - name: Install pip packages
+      pip:
+        executable: '{{ pip_path.stdout }}'
+        name: 
+          - powerline_status
+          - neovim
+
+    # Install config files
+    - name: Get dotfiles
+      git:
+        repo: https://github.com/jonnyirwin/dotfiles.git
+        dest: ~/.dotfiles
+        version: bionic-beaver
+
+    - name: Install dotfiles
+      command: stow vim neovim tmux zsh
+      args:        
+        chdir: ~/.dotfiles
+
+    - name: Install minpac
+      git:
+        repo: https://github.com/k-takata/minpac.git
+        dest: ~/.vim/pack/minpac/opt/minpac
+
+    # Install nvm (git method)
+    # Install npm packages (npm, vue-cli, mocha etc.)
+    # Add NVM
+    # Update NPM, Install YARN
+    # Install nvim
+    # Install nvin python client (pip3 install nvim)
+    # remove custom vimrc template
+    # install minpac
+    # tmux.conf and zshrc update by regex
+    # install docker via PPA
+    # install dotfiles
+    # Install ternjs
